@@ -1,0 +1,95 @@
+	NOT——IOT
+开发者和企业账号 和密码
+https://180.101.147.135:8843
+https://180.101.147.208:8093  
+	fwwl18350300810
+	Fuwu2002-2	
+----------------------------------------------------
+子账号
+
+http://6d396b848fa344f6bbed1b3635926ddc.login.bce.baidu.com
+
+账号：user_01		密码：DunSDDpA
+------------------------------------------------------------------
+安溪宝龙
+	data.username.cstring = "fuwu-door/device_00001";
+	data.password.cstring = "3tG1anvupcBJn+dqfyM1MHAT1FSs1oLNIpAtOQhF1Q0=";
+	topicString.cstring = "door_open_command_monitor_210312";
+	数据格式：{"code":"200","msg":"door","data":1}
+			{"code":"200","msg":"pay","data":1}		
+--------------------------------------------------------------------------------------------------------
+厦门门禁
+	fuwu-door.mqtt.iot.gz.baidubce.com:1883��
+	data.username.cstring = "fuwu-door/device_100001";
+	data.password.cstring = "RO8ptH5OMiLf7TPD8wF94w4natQj/MZdg54UeF1LscI=";
+	topicString.cstring = "door_open_command_monitor_100001";
+	数据格式：{"code":"200","msg":"door","data":1}
+			{"code":"200","msg":"pay","data":1}	
+			{"code":0,"msg":"channel","data":[{"goodsId":2,"count":2,"cargoNo":1},{"goodsId":5,"count":3,"cargoNo":2}]}	
+[10:15:48.658]收←◆0D 0A 20 73 65 6E 64 20 64 61 74 61 20 4F 4B 21 20 0D 0A 0D 0A 2A 2A 2A 2A 2A 2A 70 69 6E 67 20 6F 6B 2A 2A 2A 2A 2A 2A 2A 0D 0A 
+[10:16:03.296]收←◆0D 0A 52 45 43 56 20 46 52 4F 4D 3A 31 34 2E 32 31 35 2E 31 39 30 2E 32 30 3A 31 38 38 33 0D 0A 2B 49 50 44 37 31 0D 0A
+ 30 45 00 20 64 6F 6F 72 5F 6F 70 65 6E 5F 63 6F 6D 6D 61 6E 64 5F 6D 6F 6E 69 74 6F 72 5F 31 30 30 30 30 31 7B 22 63 6F 64 65 22 3A 22 32 30 30 22 2C 22 6D
+ 73 67 22 3A 22 70 61 79 46 69 6C 74 65 72 5F 44 61 74 61 20 3D 37 31 2D 3E 22 63 6F 64 65 22 3A 22 32 30 30 22 2C 22 6D 73 67 22 3A 22 70 61 79 22
+ 2C 22 64 61 74 61 22 3A 31 7D 0D 0A 
+ [10:40:40.699]收←◆0D 0A 52 45 43 56 20 46 52 4F 4D 3A 31 34 2E 32 31 35 2E 31 39 30 2E 32 30 3A 31 38 38 33 0D 0A 2B 49 50 44 31 34 34 0D 0A
+ 30 8D 01 00 20 64 6F 6F 72 5F 6F 70 65 6E 5F 63 6F 6D 6D 61 6E 64 5F 6D 6F 6E 69 74 6F 72 5F 31 30 30 30 30 31 7B 22 63 6F 64 65 22 3A 30 2C 22
+ 6D 73 67 22 3A 22 63 68 61 6E 6E 46 69 6C 74 65 72 5F 44 61 74 61 20 3D 31 34 34 2D 3E 7B 22 63 6F 64 65 22 3A 30 2C 22 6D 73 67 22 3A 22 63 68 
+ 61 6E 6E 65 6C 22 2C 22 64 61 74 61 22 3A 5B 7B 22 67 6F 6F 64 73 49 64 22 3A 32 2C 22 63 6F 75 6E 74 22 3A 32 2C 22 63 61 72 67 6F 4E 6F 22 3A 
+ 31 7D 2C 7B 22 67 6F 6F 64 73 49 64 22 3A 35 2C 22 63 6F 75 6E 74 22 3A 33 2C 22 63 61 72 67 6F 4E 6F 22 3A 32 7D 5D 7D 0D 0A 
+-------------------------------------------------------------------------------------------------------------
+账号和初始密码都是收货人的手机号：http://sys.iotbos.com  流量查询
+-------------------------------------------------------------------------------------------------------------
+{
+	"code": 200,
+	"UserID": "***********",
+	"msg": "channel",
+	"data": [{
+		"goodsId": 2,
+		"count": 2,
+		"cargoNo": 1
+	}, {
+		"goodsId": 5,
+		"count": 3,
+		"cargoNo": 2
+	}]
+}
+--------------------------------------
+{
+	"code": 201,
+	"UserID": "***********",
+	"msg": "feedback",
+	"data": [{
+		"goodsId": 2,
+		"count": 2,
+		"cargoNo": 1
+	}, {
+		"goodsId": 5,
+		"count": 3,
+		"cargoNo": 2
+	}]
+}
+
+cjson *myjson = cJSON_CreateObject();
+cJSON_AddNumberToObject(myjson,"code",201);
+cJSON_AddItemToObject(myjson,"UserID",cJSON_CreateString("18350300811"));
+cJSON_AddItemToObject(myjson,"msg",cJSON_CreateString("feedback"));
+cJSON *myarray = NULL;
+cJSON_AddItemToObject(json,"data",myarray=cJSON_CreateArray());
+cJSON *obj = NULL;
+cJSON_AddItemToArray(array,obj=cJSON_CreateObject());
+cJSON_AddNumberToObject(obj,"goodsId",2);
+cJSON_AddNumberToObject(obj,"count",2);
+cJSON_AddNumberToObject(obj,"cargoNo",2);
+cJSON_AddItemToArray(array,obj=cJSON_CreateObject());
+cJSON_AddNumberToObject(obj,"goodsId",2);
+cJSON_AddNumberToObject(obj,"count",2);
+cJSON_AddNumberToObject(obj,"cargoNo",2);
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,78 @@
+1,开启串口中断；
+2,开启DMA中断；
+3,空闲中断函数：
+原理是当Uart 在一个数据周期内没有收到函数，触发空闲中断；然后累加计算字符串长度
+void UsartReceive_IDLE(UART_HandleTypeDef *huart)  
+{  
+    uint32_t temp;  
+    if((__HAL_UART_GET_FLAG(huart,UART_FLAG_IDLE) != RESET))  
+    {   
+        __HAL_UART_CLEAR_IDLEFLAG(huart);  
+        HAL_UART_DMAStop(huart);  
+        temp = huart->hdmarx->Instance->CNDTR;  
+        UsartType.RX_Size =  RX_LEN - temp;   
+        UsartType.RX_flag=1;  
+        HAL_UART_Receive_DMA(huart,UsartType.RX_pData,RX_LEN); 
+
+				if(UsartType.RX_flag ==1)
+					{
+						UsartType.RX_flag = 0;
+						printf("\r\n UsartType.RX_pData is %s \r\n",UsartType.RX_pData);
+					}
+    }  
+}
+
+
+#ifdef __GNUC__
+  /* With GCC/RAISONANCE, small printf (option LD Linker->Libraries->Small printf
+     set to 'Yes') calls __io_putchar() */
+  #define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
+#else
+  #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
+#endif /* __GNUC__ */
+/**
+  * @brief  Retargets the C library printf function to the USART.
+  * @param  None
+  * @retval None
+  */
+PUTCHAR_PROTOTYPE
+{
+  /* Place your implementation of fputc here */
+  /* e.g. write a character to the EVAL_COM1 and Loop until the end of transmission */
+  HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, 0xFFFF);
+ 
+  return ch;
+}
+
+
+4,在Uart中断函数里Idle函数；
+/**
+* @brief This function handles USART1 global interrupt.
+*/
+void USART1_IRQHandler(void)
+{
+  /* USER CODE BEGIN USART1_IRQn 0 */
+
+  /* USER CODE END USART1_IRQn 0 */
+  HAL_UART_IRQHandler(&huart1);
+  /* USER CODE BEGIN USART1_IRQn 1 */
+	UsartReceive_IDLE(&huart1);
+  /* USER CODE END USART1_IRQn 1 */
+}
+5,在main函数里添启动代码
+	HAL_UART_Receive_DMA(&huart1, UsartType.RX_pData, RX_LEN); 
+	HAL_UART_Receive_DMA(&huart2, UsartType.RX_pData, RX_LEN); 
+	HAL_UART_Receive_DMA(&huart3, UsartType.RX_pData, RX_LEN); 
+	__HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE); 
+	__HAL_UART_ENABLE_IT(&huart2, UART_IT_IDLE); 	
+	__HAL_UART_ENABLE_IT(&huart3, UART_IT_IDLE);
+6,定义结构体
+#define RX_LEN 1024  
+typedef struct  
+{  
+uint8_t  RX_flag:1;        //IDLE receive flag
+uint16_t RX_Size;          //receive length
+uint8_t  RX_pData[RX_LEN]; //DMA receive buffer
+}USART_RECEIVETYPE;  
+
+extern USART_RECEIVETYPE UsartType;

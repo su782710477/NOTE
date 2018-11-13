@@ -1,0 +1,56 @@
+AT+CMQTTSTART
+AT+CMQTTACCQ=0,"client c"
+AT+CMQTTWILLTOPIC=0,10
+>will topic
+AT+CMQTTWILLMSG=0,56,1
+>you’d better set will topic before setting will message
+AT+CMQTTCONNECT=0,"tcp://116.247.119.165:5141",20,1,”username”,”password”
+AT+CMQTTPUBTOPIC=0,13
+>publish topic
+AT+CMQTTPUBMSG=0,62
+>you’d better set publish topic before setting publish message.
+AT+CMQTTPUB=0,1,60
+AT+CMQTTDISC=0,60
+AT+CMQTTREL=0
+AT+CMQTTSTOP
+/******************	subscribe and unsubscribe***************/
+AT+CMQTTSUB=0,9,1,1
+>subscribe
+AT+CMQTTUNSUB=0,9,1
+>subscribe
+/******************* receive publish message******************/
++CMQTTRXSTART: 0,9,6
++CMQTTRXTOPIC: 0,9
+ttttttttt
++CMQTTRXPAYLOAD: 0,6
+yyyyyy
++CMQTTRXEND: 0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

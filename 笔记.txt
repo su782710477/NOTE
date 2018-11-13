@@ -1,0 +1,156 @@
+/***************************************/
+无论nMOS还是pMOS两线相交的是S极；
+单独一根的是D极；
+箭头向外的是P 简称放P；
+pMOS导通条件Vg<VS;
+nMOS导通条件Vg>VS;
+/*****************************************/
+STM32CUBEMX的FreeRtos中的队列创建 貌似有问题
+osMessageQDef(SIM_Queue, 5, 300);
+		#define osMessageQDef(name, queue_sz, type)   \
+		const osMessageQDef_t os_messageQ_def_##name = \
+		{ (queue_sz),  sizeof(type) }
+改成
+		#define osMessageQDef(name, queue_sz, type)   \
+		const osMessageQDef_t os_messageQ_def_##name = \
+		{ (queue_sz),  (type) }/*改这里*/
+/*****************************************/
+在中断里尽量不要用延时函数，printf()也不行
+/*****************************************/
+/*
+*查找 关键词后面的数据（字符长度）
+*然后从下一行（2字节）开始筛选出相应长度的数据
+*SIM_Data：要检索的数据；Fil_Data：结果保存buf；element：要检索的关键词（得到字符串长度）
+*/
+uint8_t SIM_Filter_Data(char *SIM_Data, char *Fil_Data, char *element)
+{
+	uint16_t F_e = 0, S_e = 0, result = 0;
+	memset(Fil_Data, 0, BUFLEN);
+	F_e = strstr(SIM_Data, element) - SIM_Data;				//获得元素的位置；
+	F_e = strchr(SIM_Data+ F_e+1, ',') - SIM_Data;			//获得元素内容长度的分隔符‘，’；//+1是防止检索到自己
+	S_e = strstr(SIM_Data + F_e + 1, "\r\n") - SIM_Data;	//获得元素内容长度的分隔符“回车”；//+1是防止检索到自己
+	strncpy(Fil_Data, SIM_Data + F_e + 1, S_e - F_e -1);	//得到内容长度（ASCII码）；//+1是因为F_e是‘，’的位置
+	result = atoi(Fil_Data);								//ASCII码内容长度->int
+/*****************************************/
+	strncpy(Fil_Data, SIM_Data + S_e + 2, result);			//将原始数据从元素结尾回车(+2个字符)开始后面n个字符提取出来
+#if Debug
+	printf("Filter_Data =%s->", Fil_Data);
+#endif
+	return SUCCESS;
+}
+
+/*
+*筛选keyword之后到回车之前的信息
+*SIM_Data：要检索的数据；Fil_Data：结果保存buf；element：要检索的关键词之后的数据
+*return success：成功；error：失败 
+*/
+uint8_t Get_SIM_Data(char *SIM_Data, char *Fil_Data, char *element)			//筛选模块本身信息
+{
+	uint16_t F_e = 0, S_e = 0, *result = 0;
+	result = strstr(SIM_Data, element);
+	if (result == NULL)
+	{
+		return ERROR;
+	}
+	F_e = strstr(SIM_Data, element) - SIM_Data;				//获得元素的位置；
+	S_e = strstr(SIM_Data + F_e + 1, "\r\n") - SIM_Data;	// 获得元素内容结尾“回车”；//+1是防止检索到自己
+	if ( (F_e == NULL) || (S_e == NULL) )
+	{
+		printf("SIM_Data Formatting Error...\r\n");
+		return ERROR;
+	}
+	strncpy(Fil_Data, SIM_Data + F_e + strlen(element), S_e - F_e - strlen(element));	//将原始数据（元素位置+元素长度）开始
+	return SUCCESS;
+}
+
+
+uint8_t Check_Return_Code(char *SIM_Data)
+{
+	uint16_t Return_Code = 0, err = 0;
+	char Fil_Data[20] = "0";
+	if(Get_SIM_Data(SIM_Data, Fil_Data, ": 0," ) == ERROR)
+	{
+		Get_SIM_Data(SIM_Data, Fil_Data, ": " );
+	}
+	for (uint8_t i = 0; i < strlen(Fil_Data); i++)
+	{
+		if ((Fil_Data[i] >= '0') && (Fil_Data[i] <= '9'))
+			err++;
+	}
+	if (err == strlen(Fil_Data))
+	{
+		Return_Code = atoi(Fil_Data);
+	}
+	else
+	{
+		return 32;//error
+	}
+	return Return_Code;
+}
+/*****************************************/
+/*
+*数据格式化，类似于sprintf();
+*
+*
+*/
+uint8_t SIMCOM_CMD_format(const char *cmd, ...)
+{
+	char	*str = NULL;
+	uint8_t number = 0;
+	uint8_t temp[100];
+	uint8_t i = 0;	
+	va_list args;
+	va_start (args, cmd);
+	
+	memset(TxBuf,0,BUFLEN);
+	while (*cmd)
+	{
+		if (*cmd == '%')
+		{
+			cmd++;
+			switch (*cmd)
+			{
+				case 's':
+					{
+						str = va_arg(args, char*);
+						sprintf(temp,"\"%s\"",str);
+						i = i +strlen(temp);
+						strcat(TxBuf, temp);
+						memset(temp,0,100);
+						cmd++;
+					}
+					break;
+				case 'd':
+					{
+						number = va_arg(args, int);
+						sprintf(temp, "%d", number);
+						i = i + strlen(temp);
+						strcat(TxBuf, temp);
+						memset(temp,0,100);
+						cmd++;
+					}
+					break;
+				default:
+					break;
+			}
+		}
+		TxBuf[i] = *cmd;
+		i++;
+		cmd++;	
+	}
+	va_end(args);
+	return SUCCESS;
+}
+/*****************************************/
+uint8_t SIM_Check_Data(char *SIM_Data, char *Fil_Data)
+{
+	uint16_t F_e = S_e =0;
+	F_e = strstr(SIM_Data,"\r\n+CMQTTRXSTART: ");
+	S_e = strstr(SIM_Data,"+CMQTTRXEND: 0\r\n");
+	if((F_e != NULL) && (S_e != NULL))
+	{
+		strncpy(Fil_Data, SIM_Data, (S_e - F_e + strlrn("+CMQTTRXEND: 0\r\n") ) );
+	}
+}
+
+/*****************************************/
